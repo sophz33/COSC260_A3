@@ -67,7 +67,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
 } else {
-    send_error(405, 'ISSUE WITH POST REQUEST');  // JUST FOR TROUBLESHOOTING - UPDATE BEFORE SUBMITTING
+    send_error(405, $responses[405], "Request method must be POST", $error_arr);
+    print(json_encode($error_arr));
+    die();
 }
 
 
@@ -114,19 +116,20 @@ $customMsgs = [
 ];
 
 // header function NEEDS TO BE CORRECTED AND FINISHED
-$PROTOCOL = $_SERVER['SERVER_PROTOCOL']; 
-$CODE = http_response_code(); 
-$REASON = $responses[$CODE]; 
-$MESSAGE = $customMsgs[$errors];
+// $PROTOCOL = $_SERVER['SERVER_PROTOCOL']; 
+// $CODE = http_response_code(); 
+// $REASON = $responses[$CODE]; 
+// $MESSAGE = $customMsgs[$errors];
 
 
 // error function NEEDS TO BE MODIFIED FOR THIS REQUIREMENT
-function send_error($code, $msg) {
-    http_response_code($code);
-    echo json_encode(['status code' => $code, 'message' => $msg]);
-    die();
-
+function send_error($CODE, $REASON, $MESSAGE, &$ERR_ARR){ 
+    $PROTOCOL = $_SERVER['SERVER_PROTOCOL'];
+    $HEADER = "Error: $PROTOCOL $CODE - $REASON";
+    header($HEADER, true, $CODE);
+    $ERR_ARR[] = "$CODE - $REASON: $MESSAGE";
 }
+
 
 function getParameter($k){
     if (isset($_POST[$k])) {
@@ -137,5 +140,7 @@ function getParameter($k){
         return NULL;
     }
 }
+
+
 
 
